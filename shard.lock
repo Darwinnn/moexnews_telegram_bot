@@ -1,0 +1,22 @@
+version: 1.0
+shards:
+  halite:
+    github: icyleaf/halite
+    commit: 8acece621952f8463f22a6f8faadf8fa753278f0
+
+  har:
+    github: NeuraLegion/har
+    version: 1.1.1
+
+  marionette:
+    github: watzon/marionette
+    version: 0.1.2
+
+  strange:
+    github: hydecr/strange
+    commit: bdf7e996ddadad8f24b74dc550a23123b5449802
+
+  tourmaline:
+    github: protoncr/tourmaline
+    version: 0.15.1
+

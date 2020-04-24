@@ -1,0 +1,23 @@
+version: '2'
+services: 
+  bot:
+    build: .
+    container_name: moex_bot
+    environment: 
+      CHAT_ID: -1001235428121
+      API_KEY: <telegram_api_key>
+      FIREFOX_ADDRESS: firefox
+      # where to store the images
+      IMAGE_TMP_PATH: /tmp/
+      # browser render timeout
+      BROWSER_TIMEOUT: 20000
+      # wether to send the last found article on startup
+      # should be false, so it won't potentially spam with already sent articles on crash
+      SEND_LAST: "true"
+    depends_on: 
+      - firefox
+    restart: always
+  firefox:
+    image: deepsweet/firefox-headless-remote:latest
+    ports:
+      - 2828:2828
