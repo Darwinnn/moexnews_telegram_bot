@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-describe MoexPublicationsBot do
+describe "MoexPublicationsBot" do
   # TODO: Write tests
 
   it "works" do
