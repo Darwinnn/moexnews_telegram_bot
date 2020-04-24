@@ -1,0 +1,19 @@
+name: moex_publications_bot
+version: 0.1.0
+
+authors:
+  - Darwin
+
+targets:
+  moex_publications_bot:
+    main: src/moex_publications_bot.cr
+    
+dependencies:
+  marionette:
+    github: watzon/marionette
+  tourmaline:
+    github: protoncr/tourmaline
+    version: ~> 0.15.0
+crystal: 0.34.0
+
+license: MIT
