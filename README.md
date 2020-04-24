@@ -1,26 +1,11 @@
-# moex_publications_bot
+[![Build Status](https://travis-ci.org/Darwinnn/moexnews_telegram_bot.svg?branch=master)](https://travis-ci.org/Darwinnn/moexnews_telegram_bot)
 
-TODO: Write a description here
+# Moex.com telegram news parser
+
+Parses news from [moex.com](https://moex.com), takes screenshots of tables via selenium-like interface, posts the result to a telegram channel
 
 ## Installation
 
-TODO: Write installation instructions here
-
-## Usage
-
-TODO: Write usage instructions here
-
-## Development
-
-TODO: Write development instructions here
-
-## Contributing
-
-1. Fork it (<https://github.com/your-github-user/moex_publications_bot/fork>)
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
-
-## Contributors
-
+```bash
+docker-compose up
+```
