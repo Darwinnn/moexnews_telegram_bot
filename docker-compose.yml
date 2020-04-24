@@ -19,5 +19,7 @@ services:
     restart: always
   firefox:
     image: deepsweet/firefox-headless-remote:latest
+    shm_size: 2g
     ports:
       - 2828:2828
+    restart: always
