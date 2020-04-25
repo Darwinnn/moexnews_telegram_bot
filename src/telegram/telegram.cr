@@ -22,10 +22,9 @@ module Telegram
       else
         msg = "<b>#{obj[:title][19..]?}</b>\n\n#{obj[:text]}\n#{obj[:url]}"
         send_message(@chat_id, msg, parse_mode = :html)
-
-        input_medias = [] of InputMediaPhoto
-        images = obj[:images]
-        images.each { |img| input_medias << InputMediaPhoto.new(media: img) } if images.is_a?(Array(String))
+        input_medias = images.each_with_object([] of InputMediaPhoto) do |img, memo|
+          memo << InputMediaPhoto.new(media: img)
+        end
         send_media_group(@chat_id, input_medias)
       end
     end
