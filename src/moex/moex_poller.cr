@@ -3,13 +3,14 @@ require "xml"
 
 module Moex
   class Poller
-    NEWS_URL = "https://www.moex.com/ru/news/"
+    NEWS_URL     = "https://www.moex.com/ru/news/"
+    CONTRACT_URL = "https://www.moex.com/ru/contract.aspx?code="
     @prev_url : String = ""
 
     def initialize(@send_last : Bool)
     end
 
-    def subscribe
+    def subscribe_news
       # если send_last = true, тогда перед циклом не проставляем prev_url последней новостью
       # что заставит рутину ниже отправить в канал последнюю новость
       # должно стоять false, что бы бот при краше не переотправлял новость, которую возможно уже отправил
