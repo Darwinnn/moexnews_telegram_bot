@@ -37,7 +37,7 @@ class Main
       time = Time.local(location: Time::Location.load("Europe/Moscow"))
       Log.info { "#{time.to_s} Start polling moex..." }
 
-      # #### показываем эти контракты по будням после 9:30 MSK #####
+      # #### показываем эти контракты по будням после 10:30 MSK #####
       if self.time_to_show_contracts? && !contracts_shown
         Log.info { "Time to show contracts..." }
         %w(BR-4.20 RTS-3.20 SI-3.20).each do |contract|
@@ -78,7 +78,7 @@ class Main
 
   def self.time_to_show_contracts?
     current_time = Time.local(location: Time::Location.load("Europe/Moscow"))
-    current_time.hour >= 9 && current_time.minute >= 30 && current_time.day_of_week.to_s.in? %w(Monday Tuesday Wednesday Thursday Friday)
+    current_time.hour == 10 && current_time.minute >= 30 && current_time.day_of_week.to_s.in? %w(Monday Tuesday Wednesday Thursday Friday)
   end
 end
 
@@ -86,5 +86,5 @@ begin
   Main.configure
   Main.run
 rescue e
-  puts "Runtime restarted with #{e.message}"
+  puts "Runtime error caught: #{e.message}"
 end

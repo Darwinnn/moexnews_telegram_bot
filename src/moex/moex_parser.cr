@@ -53,7 +53,7 @@ module Moex
 
         if text.empty?
           # попробуем распарсить текст из самого div class='news_text'
-          div = b.find_element(:xpath, "//div[@class='news_text'][not(self::div[@class='row'] or self::div[@class='table-scroller'])]")
+          div = b.find_element(:xpath, "//div[@class='news_text']/[not(self::div[@class='row'] or self::div[@class='table-scroller'])]")
           text = div.text + "\n" unless div.nil?
         end
 
