@@ -27,7 +27,7 @@ module Moex
           rescue e
             puts "Exception caugh in subscribe spawn loop: #{e.message}"
           end
-          sleep 120.second
+          sleep 60.second
         end
       end
       chan

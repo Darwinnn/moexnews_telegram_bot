@@ -12,7 +12,7 @@ module Moex
       Marionette.launch(address: @ff_address, executable: false, timeout: @timeout) do |b|
         b.restart
       end
-      sleep 30.second
+      sleep 10.second
       _parse_news(url)
     end
 
@@ -36,7 +36,7 @@ module Moex
         end
         b.restart
       end
-      sleep 30.second
+      sleep 10.second
       _parse_contract(actual_code)
     end
 
