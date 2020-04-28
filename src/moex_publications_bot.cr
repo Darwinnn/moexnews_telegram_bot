@@ -1,3 +1,6 @@
+require "marionette"
+require "http/client"
+require "xml"
 require "log"
 require "./moex/*"
 require "./telegram"
@@ -9,6 +12,7 @@ class Main
   @@file_path : String = ENV["IMAGE_TMP_PATH"]? || "/tmp/"
   @@browser_timeout : (Int32 | String) = ENV["BROWSER_TIMEOUT"]? || 30000
   @@send_last : Bool = (ENV["SEND_LAST"]? == "true") || false
+  @@contract_codes = %w(BR-4.20 RTS-3.20 SI-3.20) # TODO: вытащить в конфиг
   Log.builder.bind "*", :info, Log::IOBackend.new
 
   def self.configure
@@ -28,57 +32,30 @@ class Main
 
   def self.run
     parser = Moex::Parser.new(timeout: @@browser_timeout.to_i, filepath: @@file_path, ff_address: @@ff_address)
-    poller = Moex::Poller.new(send_last: @@send_last)
+    poller = Moex::Poller.new(send_last: @@send_last, contract_codes: @@contract_codes)
     bot = Telegram::PublisherBot.new(@@chat_id, @@api_key)
-    contracts_shown = false
-    subscribe = poller.subscribe_news
+    subscribe = poller.subscribe
 
     loop do
-      time = Time.local(location: Time::Location.load("Europe/Moscow"))
-      Log.info { "#{time.to_s} Start polling moex..." }
+      Log.info { "Start polling moex..." }
+      moex_update_obj = subscribe.receive
 
-      # #### показываем эти контракты по будням после 9:30 MSK #####
-      if self.time_to_show_contracts? && !contracts_shown
-        Log.info { "Time to show contracts..." }
-        %w(BR-4.20 RTS-3.20 SI-3.20).each do |contract|
-          begin
-            obj = parser.parse_contract(contract)
-            bot.send_moex_update obj unless obj.nil?
-            images = obj[:images].as(Array(String))
-            unless images.empty?
-              Log.info { "Deleting stale screenshots #{images.join(", ")}" }
-              images.each { |image| File.delete image }
-            end
-          rescue
-            next
-          end
-        end
-        contracts_shown = true
-      elsif !self.time_to_show_contracts?
-        contracts_shown = false
+      Log.info { "Parsing object of type #{moex_update_obj.class}" }
+      message = parser.go moex_update_obj
+
+      begin
+        bot.send_moex_update message
+        Log.info { "Sent message => #{message}" }
+      rescue e
+        Log.info { "Can't send: #{e.message}" }
       end
 
-      # #### тут дальше парсим только новости #####
-      obj = parser.parse_news(subscribe.receive)
-      unless obj.nil?
-        begin
-          bot.send_moex_update obj
-          Log.info { "Sent message => #{obj}" }
-        rescue e
-          Log.info { "Can't send: #{e.message}" }
-        end
-        images = obj[:images].as(Array(String))
-        unless images.empty?
-          Log.info { "Deleting stale screenshots #{images.join(", ")}" }
-          images.each { |image| File.delete image }
-        end
+      images = message[:images].as(Array(String))
+      unless images.empty?
+        Log.info { "Deleting stale screenshots #{images.join(", ")}" }
+        images.each { |image| File.delete image }
       end
     end
-  end
-
-  def self.time_to_show_contracts?
-    current_time = Time.local(location: Time::Location.load("Europe/Moscow"))
-    current_time.hour >= 9 && current_time.minute >= 30 && current_time.day_of_week.to_s.in? %w(Monday Tuesday Wednesday Thursday Friday)
   end
 end
 

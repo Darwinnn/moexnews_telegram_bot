@@ -1,5 +1,3 @@
-require "marionette"
-
 module Moex
   struct Parser
     CONTRACT_URL = "https://www.moex.com/ru/contract.aspx?code="
@@ -7,17 +5,26 @@ module Moex
     def initialize(@timeout = 3000, @filepath = "", @ff_address = "localhost")
     end
 
-    def parse_news(url)
+    def go(obj : News)
+      parse_news obj.url
+    end
+
+    def go(obj : Contract)
+      parse_contract obj.code
+    end
+
+    def parse_news(url : String)
       # рестартим браузер, потому что он постоянно зависает :(
       Marionette.launch(address: @ff_address, executable: false, timeout: @timeout) do |b|
         b.restart
       end
-      sleep 10.second
+      sleep 5.second
       _parse_news(url)
     end
 
-    def parse_contract(code)
+    def parse_contract(code : String)
       actual_code = ""
+      # пытаемся узнать какой контракт является актуальным, после рестартим браузер и отправляем парсить по актуальному контракту
       Marionette.launch(address: @ff_address, executable: false, timeout: @timeout) do |b|
         b.goto(CONTRACT_URL + code)
         sleep 5.seconds
@@ -36,7 +43,7 @@ module Moex
         end
         b.restart
       end
-      sleep 10.second
+      sleep 5.second
       _parse_contract(actual_code)
     end
 
