@@ -87,12 +87,12 @@ module Moex
         update_time_div = b.find_element(:xpath, "//*[@id='digest_refresh_time']")
         update_time = update_time_div.text unless update_time_div.nil?
         images = [] of String
-        b.find_elements(:xpath, "//table[@class='tool_options_table_forts']").each_with_index do |table_element, idx|
+        b.find_elements(:xpath, "//div[@class='left-block']|//div[@class='right-block']").each_with_index do |table_element, idx|
           file = @filepath + "table-#{table_element.id}.png"
           table_element.save_screenshot(file, full: false, scroll: false)
           images << file
         end
-        ret[:images] = images
+        ret[:images] = images.reverse
         ret[:title] = "Сводка по рынку"
         ret[:text] = "##{code} по состоянию на #{update_time}\n"
         ret[:url] = url
