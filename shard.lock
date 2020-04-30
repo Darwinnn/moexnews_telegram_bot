@@ -1,5 +1,9 @@
 version: 1.0
 shards:
+  db:
+    github: crystal-lang/crystal-db
+    version: 0.9.0
+
   halite:
     github: icyleaf/halite
     commit: 8acece621952f8463f22a6f8faadf8fa753278f0
@@ -18,5 +22,5 @@ shards:
 
   tourmaline:
     github: protoncr/tourmaline
-    version: 0.15.1
+    version: 0.18.0
 

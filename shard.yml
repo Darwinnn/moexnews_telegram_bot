@@ -13,7 +13,8 @@ dependencies:
     github: watzon/marionette
   tourmaline:
     github: protoncr/tourmaline
-    version: ~> 0.15.0
+    version: ~> 0.18.0
+    
 crystal: 0.34.0
 
 license: MIT

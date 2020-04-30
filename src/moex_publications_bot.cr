@@ -40,20 +40,18 @@ class Main
       Log.info { "Start polling moex..." }
       moex_update_obj = subscribe.receive
 
-      Log.info { "Parsing object of type #{moex_update_obj.class}" }
-      message = parser.go moex_update_obj
-
       begin
+        Log.info { "Parsing object of type #{moex_update_obj.inspect}" }
+        message = parser.go moex_update_obj
         bot.send_moex_update message
-        Log.info { "Sent message => #{message}" }
+        Log.info { "Sent message #{message[:title]}" }
+        images = message[:images].as(Array(String))
+        unless images.empty?
+          Log.info { "Deleting stale screenshots #{images.join(", ")}" }
+          images.each { |image| File.delete image }
+        end
       rescue e
         Log.info { "Can't send: #{e.message}" }
-      end
-
-      images = message[:images].as(Array(String))
-      unless images.empty?
-        Log.info { "Deleting stale screenshots #{images.join(", ")}" }
-        images.each { |image| File.delete image }
       end
     end
   end

@@ -13,16 +13,59 @@ module Moex
       parse_contract obj.code
     end
 
-    def parse_news(url : String)
-      # рестартим браузер, потому что он постоянно зависает :(
-      Marionette.launch(address: @ff_address, executable: false, timeout: @timeout) do |b|
-        b.restart
+    private def parse_news(url : String)
+      ret = Hash(Symbol, Array(String) | String).new
+
+      resp = HTTP::Client.get(url)
+      root = XML.parse_html(resp.body)
+
+      title_node = root.xpath_node("//title")
+      ret[:title] = (title_node.text[22..] unless title_node.nil?) || ""
+
+      text = ""
+      root.xpath_nodes("//div[@class='news_text']/*[not(self::div[@class='row'] or self::table)]").each do |node|
+        # для телеги нам надо только текст + <a> ссылки
+        text += node.text + "\n\n"
+        a = node.xpath_node(".//a[@href]")
+        unless a.nil?
+          text = text.gsub(a.text, "<a href=\"#{a["href"]}\">#{a.text}</a>")
+        end
       end
-      sleep 5.second
-      _parse_news(url)
+
+      if text.empty?
+        # попробуем распарсить текст из самого div class='news_text'
+        node = root.xpath_node("//div[@class='news_text'][not(self::div[@class='row'] or self::table)]")
+        text = node.text unless node.nil?
+      end
+
+      ret[:images] = Array(String).new
+      # если в документе есть таблички, запускаем браузер и скриншотим их
+      unless root.xpath_node("//table[@class='table1']").nil?
+        ret[:images] = table_screenshots_for url
+      end
+      ret[:url] = url
+      ret[:text] = text
+      ret
     end
 
-    def parse_contract(code : String)
+    private def table_screenshots_for(url)
+      images = Array(String).new
+      # ребутаем браузер перед использованием, потому что он может зависнуть :(
+      Marionette.launch(address: @ff_address, executable: false, timeout: @timeout).restart
+      sleep 5.seconds
+      Marionette.launch(address: @ff_address, executable: false, timeout: @timeout) do |b|
+        b.goto url
+        b.find_elements(:xpath, "//table[@class='table1']").each do |table_element|
+          file = @filepath + "table-#{table_element.id}.png"
+          table_element.save_screenshot(file, full: false, scroll: false)
+          images << file
+        end
+      end
+      images
+    end
+
+    # парсим браузером вместо XML, потому что контент динамический
+    private def parse_contract(code : String)
       actual_code = ""
       # пытаемся узнать какой контракт является актуальным, после рестартим браузер и отправляем парсить по актуальному контракту
       Marionette.launch(address: @ff_address, executable: false, timeout: @timeout) do |b|
@@ -47,37 +90,6 @@ module Moex
       _parse_contract(actual_code)
     end
 
-    private def _parse_news(url)
-      ret = Hash(Symbol, Array(String) | String).new
-      Marionette.launch(address: @ff_address, executable: false, timeout: @timeout) do |b|
-        b.goto(url)
-        ret[:title] = title[19..]? || ""
-        text = ""
-        # основной контент новости тут, нам надо все, кроме таблиц и футера с копирайтом
-        b.find_elements(:xpath, "//div[@class='news_text']/*[not(self::div[@class='row'] or self::div[@class='table-scroller'])]").each do |elem|
-          text += elem.text + "\n\n"
-        end
-
-        if text.empty?
-          # попробуем распарсить текст из самого div class='news_text'
-          div = b.find_element(:xpath, "//div[@class='news_text'][not(self::div[@class='row'] or self::div[@class='table-scroller'])]")
-          text = div.text + "\n" unless div.nil?
-        end
-
-        ret[:text] = text
-        images = [] of String
-        # находим и скриншотим все таблички
-        b.find_elements(:xpath, "//table[@class='table1']").each_with_index do |table_element, idx|
-          file = @filepath + "table-#{table_element.id}.png"
-          table_element.save_screenshot(file, full: false, scroll: false)
-          images << file
-        end
-        ret[:images] = images
-      end
-      ret[:url] = url
-      ret
-    end
-
     private def _parse_contract(code : String)
       url = CONTRACT_URL + code
       ret = Hash(Symbol, Array(String) | String).new
@@ -97,7 +109,6 @@ module Moex
         ret[:text] = "##{code} по состоянию на #{update_time}\n"
         ret[:url] = url
       end
-
       ret
     end
   end
