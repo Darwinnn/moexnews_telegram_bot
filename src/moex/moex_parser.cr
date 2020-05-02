@@ -6,11 +6,11 @@ module Moex
     end
 
     def go(obj : News)
-      parse_news obj.url
+      parse_news obj.value
     end
 
     def go(obj : Contract)
-      parse_contract obj.code
+      parse_contract obj.value
     end
 
     private def parse_news(url : String)

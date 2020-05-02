@@ -11,7 +11,7 @@ module Telegram
     def send_moex_update(obj)
       images = obj[:images].as(Array(String))
       if images.empty?
-        msg = "<b>#{obj[:title]}</b>\n\n#{obj[:text]}\n#{obj[:url]}"
+        msg = "<b>#{obj[:title]}</b>\n\n#{obj[:text][..3900]}\n#{obj[:url]}"
         send_message(@chat_id, msg, parse_mode = :html)
       elsif obj[:images].size == 1
         msg = "<b>#{obj[:title]}</b>\n\n#{obj[:text][..900]?}\n#{obj[:url]}"
@@ -20,7 +20,7 @@ module Telegram
         # fails with "unknown parse_mode" bullshit...
         # send_photo(@chat_id, photo: image, caption: msg, parse_mode: :markdown)
       else
-        msg = "<b>#{obj[:title]}</b>\n\n#{obj[:text]}\n#{obj[:url]}"
+        msg = "<b>#{obj[:title]}</b>\n\n#{obj[:text][..3900]}\n#{obj[:url]}"
         send_message(@chat_id, msg, parse_mode = :html)
         input_medias = images.each_with_object([] of InputMediaPhoto) do |img, memo|
           memo << InputMediaPhoto.new(media: img)

@@ -1,15 +1,15 @@
 module Moex
   class Contract
-    getter code
+    getter value
 
-    def initialize(@code : String)
+    def initialize(@value : String)
     end
   end
 
   class News
-    getter url
+    getter value
 
-    def initialize(@url : String)
+    def initialize(@value : String)
     end
   end
 end

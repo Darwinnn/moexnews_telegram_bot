@@ -12,7 +12,7 @@ class Main
   @@file_path : String = ENV["IMAGE_TMP_PATH"]? || "/tmp/"
   @@browser_timeout : (Int32 | String) = ENV["BROWSER_TIMEOUT"]? || 30000
   @@send_last : Bool = (ENV["SEND_LAST"]? == "true") || false
-  @@contract_codes = %w(BR-4.20 RTS-3.20 SI-3.20) # TODO: вытащить в конфиг
+  @@contract_codes = ENV.has_key?("CONTRACTS") ? ENV["CONTRACTS"].split(",") : %w(BR-4.20 RTS-3.20 SI-3.20)
   Log.builder.bind "*", :info, Log::IOBackend.new
 
   def self.configure
@@ -27,6 +27,7 @@ class Main
     BROWSER_TIMEOUT: #{@@browser_timeout}
     SEND_LAST: #{@@send_last}
     FIREFOX_ADDRESS: #{@@ff_address}
+    CONTRACTS: #{@@contract_codes}
     CONF
   end
 
@@ -60,6 +61,6 @@ end
 begin
   Main.configure
   Main.run
-rescue e
-  puts "Runtime restarted with #{e.message}"
+rescue ex
+  puts "Runtime failed with #{ex.inspect}"
 end

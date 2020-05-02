@@ -11,6 +11,11 @@ services:
       IMAGE_TMP_PATH: /tmp/
       # browser render timeout
       BROWSER_TIMEOUT: 20000
+      # contacts to show each work day
+      # the code of contract is used only as a reference
+      # the actual parsed contract will be the last active or if it's 3 days before expiration
+      # the second one will be parsed and showed.
+      CONTRACTS: BR-4.20,RTS-3.20,SI-3.20
       # wether to send the last found article on startup
       # should be false, so it won't potentially spam with already sent articles on crash
       SEND_LAST: "true"
