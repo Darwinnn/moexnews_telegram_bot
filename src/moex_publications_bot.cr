@@ -52,7 +52,7 @@ class Main
           images.each { |image| File.delete image }
         end
       rescue e
-        Log.info { "Can't send: #{e.message}" }
+        Log.info { "Can't send message #{message}: #{e.inspect}" }
       end
     end
   end
